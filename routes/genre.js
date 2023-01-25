@@ -59,7 +59,7 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
     let found = movieGenres.find(movies => movies.id === parseInt (req.params.id));
-    if (!found) res.status(404).send('Genre not found');
+    if (!found) res.status(404).json('Genre not found');
 
     const schema = Joi.object({
         name: Joi.string().min(3).required()
@@ -67,12 +67,12 @@ router.put('/:id', (req, res) => {
     const result = schema.validate(req.body);
 
     if (result.error) {
-        res.status(400).send(result.error.details[0].message);
+        res.status(400).json(result.error.details[0].message);
         return
     }
 
     found.name = req.body.name;
-    res.send(found);
+    res.json(found);
 });
 
 //DELETE / TO DELETE GENRE
