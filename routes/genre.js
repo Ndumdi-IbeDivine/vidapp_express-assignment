@@ -1,4 +1,5 @@
 const express = require('express');
+const Joi = require('joi'); 
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.get('/', (req, res) => {
 //GET / TO GET GENRES BY id.
 
 router.get('/:id', (req, res) => {
-    let found = movieGenres.find(movies => movies.id === req.params.id);
+    let found = movieGenres.find(movies => movies.id === parseInt(req.params.id));
     if (found) {
         res.status(200).json(found);
     } 
@@ -34,10 +35,19 @@ router.get('/:id', (req, res) => {
 //POST / TO CREATE A NEW GENRE
 
 router.post('/', (req, res) => {
-    let newId = movieGenres.length + 1;
+    
+    const schema = Joi.object({
+        name: Joi.string().min(3).required()
+    });
+    const result = schema.validate(req.body);
 
-    let newGenre = {
-        id: newId,
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message);
+        return
+    }
+
+    const newGenre = {
+        id: movieGenres.length + 1,
         name: req.body.name
     };
     movieGenres.push(newGenre);
@@ -48,17 +58,21 @@ router.post('/', (req, res) => {
 // PUT / TO UPDATE GENRE
 
 router.put('/:id', (req, res) => {
-    let found = movieGenres.find(movies => movies.id === req.params.id);
-    if (found) {
-        let updatedGenre = {
-            id: found.id,
-            name: req.body.name
-        }
-        const targetGenre = movieGenres.indexOf(found)
-        movieGenres.splice(targetGenre, 1, updatedGenre);
-        res.status(201).json(updatedGenre);
+    let found = movieGenres.find(movies => movies.id === parseInt (req.params.id));
+    if (!found) res.status(404).send('Genre not found');
+
+    const schema = Joi.object({
+        name: Joi.string().min(3).required()
+    });
+    const result = schema.validate(req.body);
+
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message);
+        return
     }
-        res.status(404).json({message: 'Genre not found'});
+
+    found.name = req.body.name;
+    res.send(found);
 });
 
 //DELETE / TO DELETE GENRE
