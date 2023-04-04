@@ -8,7 +8,7 @@ const joiSchema = Joi.object ({
   name: Joi.string().min(5).max(50).required(),
   phone: Joi.string().min(5).max(50).required(),
   isGold: Joi.boolean()
-})
+});
 
 
 router.get('/', async (req, res) => {
@@ -17,12 +17,9 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  // const error = validate(req.body); 
-  // if (error) return res.status(400).send(error.details[0].message);
 
-  const validatedValue = joiSchema.validate({...req.body});
-  // console.log(error);
-  if (validatedValue.error) return res.status(400).send(validatedValue.error.details[0].message);
+  const validatedCustomer = joiSchema.validate({...req.body});
+  if (validatedCustomer.error) return res.status(400).send(validatedCustomer.error.details[0].message);
 
 
   let customer = new Customer({ 
@@ -36,9 +33,8 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  const validatedValue = joiSchema.validate({...req.body});
-  // console.log(error);
-  if (validatedValue.error) return res.status(400).send(validatedValue.error.details[0].message);
+  const validatedCustomer = joiSchema.validate({...req.body});
+  if (validatedCustomer.error) return res.status(400).send(validatedCustomer.error.details[0].message);
 
   const customer = await Customer.findByIdAndUpdate(req.params.id,
     { 

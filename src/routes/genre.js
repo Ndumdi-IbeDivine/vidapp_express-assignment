@@ -1,7 +1,12 @@
-const {Movie, validate} = require('../models/movies'); 
+const { Movie } = require('../models/movies'); 
 const {Genre} = require('../models/genres');
 const express = require('express');
+const Joi = require('joi');
 const router = express.Router();
+
+const joiSchema = Joi.object({
+  name: Joi.string().min(3).required()
+})
 
 router.get('/', async (req, res) => {
   const movies = await Movie.find().sort('name');
@@ -9,8 +14,8 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { error } = validate(req.body); 
-  if (error) return res.status(400).json(error.details[0].message);
+  const validatedGenre = joiSchema.validate({...req.body});
+  if (validatedGenre.error) return res.status(400).send(validatedGenre.error.details[0].message);
 
   const genre = await Genre.findById(req.body.genreId);
   if (!genre) return res.status(400).send('Invalid genre.');
@@ -30,8 +35,9 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error.details[0].message);
+  const validatedGenre = joiSchema.validate({...req.body});
+  if (validatedGenre.error) return res.status(400).send(validatedGenre.error.details[0].message);
+
 
   const genre = await Genre.findById(req.body.genreId);
   if (!genre) return res.status(400).send('Invalid genre.');
